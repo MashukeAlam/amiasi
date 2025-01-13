@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex gap-8">
+        <!-- Features List -->
+        <div class="w-1/2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold mb-4">Recently Created</h2>
+                {% if features %}
+                    <div class="space-y-4">
+                        {% for feature in features %}
+                            <div class="border rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                      {% if feature.feature_name == 'youtube_like' %}
+                                      <span class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-sm font-medium text-orange-800">{{ feature.get_feature_name_display }}</span>
+                                  {% elif feature.feature_name ==  'youtube_sub' %}
+                                      <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-sm font-medium text-purple-800">{{ feature.get_feature_name_display }}</span>
+                                  {% elif feature.feature_name ==  'youtube_view' %}
+                                      <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-sm font-medium text-emerald-800">{{ feature.get_feature_name_display }}</span>
+                                  {% else %}
+                                      <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">{{ feature.get_feature_name_display }}</span>
+                                  {% endif %}                                        <p class="text-gray-600">Link: {{ feature.link }}</p>
+                                        <p class="text-gray-600">Reward: {{ feature.reward }} credits</p>
+                                        <p class="text-sm text-gray-500">Created: {{ feature.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">You haven't created any features yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Feature Creation Form -->
+        <div class="w-1/2">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold mb-4">Create New Feature</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Create Feature
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
