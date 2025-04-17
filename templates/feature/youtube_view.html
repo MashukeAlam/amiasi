@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>YouTube Likes</h2>
+  <div id="video-container">
+    <iframe
+      id="youtube-player"
+      width="560"
+      height="315"
+      src=""
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+    ></iframe>
+  </div>
+
+  <script>
+    const features = {{ features|safe }};
+    const links = features.map(f => f.link);
+    const ids = features.map(f => f.id);
+    let current = 0;
+  
+    function extractVideoId(url) {
+      const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
+    }
+  
+    function markAsConsumed(featureId) {
+      fetch("{% url 'feature:consume_feature' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `feature_id=${featureId}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Feature ${featureId} consumed. Reward: ${data.reward}`);
+        } else {
+          console.warn("Not approved:", data.error);
+        }
+      })
+      .catch(err => console.error("Error:", err));
+    }
+  
+    function showNextVideo() {
+      if (current >= links.length) {
+        document.getElementById('youtube-player').src = '';
+        alert("No more videos to watch.");
+        return;
+      }
+  
+      const videoId = extractVideoId(links[current]);
+      const featureId = ids[current];
+  
+      if (videoId) {
+        document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      }
+  
+      setTimeout(() => {
+        markAsConsumed(featureId);
+        current++;
+        showNextVideo();
+      }, 15000);
+    }
+  
+    showNextVideo();
+  </script>
+  
+{% endblock %}

@@ -7,6 +7,21 @@ class Credit(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=20)
 
+    def increase(self, amount: int) -> None:
+        """
+        Increase the user's credit by a specified amount.
+
+        Args:
+            amount (int): The amount of credit to add. Must be a positive integer.
+
+        Raises:
+            ValueError: If the amount is not a positive integer.
+        """
+        if amount <= 0:
+            raise ValueError("Credit increase amount must be a positive integer.")
+        self.amount += amount
+        self.save()
+
     def __str__(self):
         return f"{self.amount} 💸"
     
@@ -29,7 +44,7 @@ class CreditRequest(models.Model):
             print(self.user)
             self.approved = True
             credit = Credit.objects.get(user=self.user)
-            credit.amount += self.amount
+            credit.increase(self.amount)
             credit.save()
             self.save()
 
