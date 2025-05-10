@@ -6,28 +6,47 @@
         <!-- Features List -->
         <div class="w-1/2">
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-4">Recently Created</h2>
+                <h2 class="text-2xl font-bold mb-4">Recent History</h2>
                 {% if features %}
-                    <div class="space-y-4">
-                        {% for feature in features %}
-                            <div class="border rounded-lg p-4">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                      {% if feature.feature_name == 'youtube_like' %}
-                                      <span class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-sm font-medium text-orange-800">{{ feature.get_feature_name_display }}</span>
-                                  {% elif feature.feature_name ==  'youtube_sub' %}
-                                      <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-sm font-medium text-purple-800">{{ feature.get_feature_name_display }}</span>
-                                  {% elif feature.feature_name ==  'youtube_view' %}
-                                      <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-sm font-medium text-emerald-800">{{ feature.get_feature_name_display }}</span>
-                                  {% else %}
-                                      <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">{{ feature.get_feature_name_display }}</span>
-                                  {% endif %}                                        <p class="text-gray-600">Link: {{ feature.link }}</p>
-                                        <p class="text-gray-600">Reward: {{ feature.reward }} credits</p>
-                                        <p class="text-sm text-gray-500">Created: {{ feature.created_at|date:"M d, Y" }}</p>
-                                    </div>
+                    <div class="mt-4 flow-root">
+                        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Feature Type</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Link</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Reward</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 bg-white">
+                                            {% for feature in features %}
+                                                <tr>
+                                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900">
+                                                        {% if feature.feature_name == 'youtube_like' %}
+                                                            <span class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">{{ feature.get_feature_name_display }}</span>
+                                                        {% elif feature.feature_name == 'youtube_sub' %}
+                                                            <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">{{ feature.get_feature_name_display }}</span>
+                                                        {% elif feature.feature_name == 'youtube_view' %}
+                                                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">{{ feature.get_feature_name_display }}</span>
+                                                        {% else %}
+                                                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">{{ feature.get_feature_name_display }}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                                                        <a href="{{ feature.link }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">Link</a>
+                                                    </td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ feature.reward }} credits</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ feature.created_at|date:"M d, Y" }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        {% endfor %}
+                        </div>
                     </div>
                 {% else %}
                     <p class="text-gray-600">You haven't created any features yet.</p>

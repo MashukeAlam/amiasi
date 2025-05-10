@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>YouTube Likes</h2>
+  <div id="like-container">
+    <div id="video-display">
+      <!-- Video link and button will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <script>
+    const features = {{ features|safe }};
+    let current = 0;
+
+    function markAsConsumed(featureId) {
+      fetch("{% url 'feature:consume_feature' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `feature_id=${featureId}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Feature ${featureId} consumed. Reward: ${data.reward}`);
+          alert(`Liked successfully! Reward: ${data.reward} credits.`);
+          showNextVideo(); // Move to the next video
+        } else {
+          console.warn("Not approved:", data.error);
+          alert(`Error: ${data.error}`);
+        }
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        alert("An error occurred while processing your like.");
+      });
+    }
+
+    function showNextVideo() {
+      const container = document.getElementById('video-display');
+      container.innerHTML = ''; // Clear current content
+
+      if (current >= features.length) {
+        container.innerHTML = '<p>No more YouTube videos to like.</p>';
+        return;
+      }
+
+      const feature = features[current];
+      const videoHtml = `
+        <div>
+          <a href="${feature.link}" target="_blank" class="video-link">${feature.link}</a>
+          <button class="like-btn" data-feature-id="${feature.id}" data-link="${feature.link}">Like</button>
+        </div>
+      `;
+      container.innerHTML = videoHtml;
+
+      // Attach event listener to the new Like button
+      const button = container.querySelector('.like-btn');
+      button.addEventListener('click', () => {
+        const featureId = button.getAttribute('data-feature-id');
+        const link = button.getAttribute('data-link');
+
+        // Open the video link in a new tab
+        window.open(link, '_blank');
+
+        // Directly mark as consumed
+        markAsConsumed(featureId);
+        button.disabled = true;
+        button.textContent = "Liked";
+        current++; // Increment after triggering markAsConsumed
+      });
+    }
+
+    // Start by showing the first video
+    showNextVideo();
+  </script>
+
+  <style>
+    #video-display {
+      margin: 10px 0;
+    }
+    .video-link {
+      margin-right: 10px;
+      text-decoration: none;
+      color: #1a0dab;
+    }
+    .video-link:hover {
+      text-decoration: underline;
+    }
+    .like-btn {
+      padding: 5px 10px;
+      background-color: #bd997b;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .like-btn:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+  </style>
+{% endblock %}

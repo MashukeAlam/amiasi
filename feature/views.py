@@ -49,6 +49,48 @@ def youtube_view(request):
         'features': features_data
     })
 
+@login_required
+def youtube_sub(request):
+    # Get IDs of features already consumed by the current user
+    consumed_feature_ids = FeatureConsumptionHistory.objects.filter(
+        user=request.user
+    ).values_list('feature_id', flat=True)
+
+    # Fetch unconsumed youtube_sub features, randomized
+    unconsumed_features = Feature.objects.filter(
+        feature_name='youtube_sub'
+    ).exclude(
+        id__in=consumed_feature_ids
+    ).order_by('?')
+
+    # Select only necessary fields for efficiency
+    features_data = unconsumed_features.values('id', 'link', 'feature_name')
+
+    return render(request, 'feature/youtube_sub.html', {
+        'features': list(features_data)
+    })
+
+@login_required
+def youtube_like(request):
+    # Get IDs of features already consumed by the current user
+    consumed_feature_ids = FeatureConsumptionHistory.objects.filter(
+        user=request.user
+    ).values_list('feature_id', flat=True)
+
+    # Fetch unconsumed youtube_like features, randomized
+    unconsumed_features = Feature.objects.filter(
+        feature_name='youtube_like'
+    ).exclude(
+        id__in=consumed_feature_ids
+    ).order_by('?')
+
+    # Select only necessary fields for efficiency
+    features_data = unconsumed_features.values('id', 'link', 'feature_name')
+
+    return render(request, 'feature/youtube_like.html', {
+        'features': list(features_data)
+    })
+
 
 @csrf_exempt
 @require_POST

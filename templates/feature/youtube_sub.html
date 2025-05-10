@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>YouTube Subscriptions</h2>
+  <div id="subscription-container">
+    <div id="channel-display">
+      <!-- Channel link and button will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <script>
+    const features = {{ features|safe }};
+    let current = 0;
+
+    function markAsConsumed(featureId) {
+      fetch("{% url 'feature:consume_feature' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `feature_id=${featureId}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Feature ${featureId} consumed. Reward: ${data.reward}`);
+          alert(`Subscribed successfully! Reward: ${data.reward} credits.`);
+          showNextChannel(); // Move to the next channel
+        } else {
+          console.warn("Not approved:", data.error);
+          alert(`Error: ${data.error}`);
+        }
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        alert("An error occurred while processing your subscription.");
+      });
+    }
+
+    function showNextChannel() {
+      const container = document.getElementById('channel-display');
+      container.innerHTML = ''; // Clear current content
+
+      if (current >= features.length) {
+        container.innerHTML = '<p>No more YouTube channels to subscribe to.</p>';
+        return;
+      }
+
+      const feature = features[current];
+      const channelHtml = `
+        <div>
+          <a href="${feature.link}" target="_blank" class="channel-link">${feature.link}</a>
+          <button class="subscribe-btn" data-feature-id="${feature.id}" data-link="${feature.link}">Subscribe</button>
+        </div>
+      `;
+      container.innerHTML = channelHtml;
+
+      // Attach event listener to the new Subscribe button
+      const button = container.querySelector('.subscribe-btn');
+      button.addEventListener('click', () => {
+        const featureId = button.getAttribute('data-feature-id');
+        const link = button.getAttribute('data-link');
+
+        // Open the channel link in a new tab
+        window.open(link, '_blank');
+
+        // Directly mark as consumed
+        markAsConsumed(featureId);
+        button.disabled = true;
+        button.textContent = "Subscribed";
+        current++; // Increment after triggering markAsConsumed
+      });
+    }
+
+    // Start by showing the first channel
+    showNextChannel();
+  </script>
+
+  <style>
+    #channel-display {
+      margin: 10px 0;
+    }
+    .channel-link {
+      margin-right: 10px;
+      text-decoration: none;
+      color: #1a0dab;
+    }
+    .channel-link:hover {
+      text-decoration: underline;
+    }
+    .subscribe-btn {
+      padding: 5px 10px;
+      background-color: #bce7c6;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .subscribe-btn:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+  </style>
+{% endblock %}
